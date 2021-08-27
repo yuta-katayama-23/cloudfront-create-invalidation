@@ -1,0 +1,19 @@
+{
+  "name": "ecs-update-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/execute-lambda.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.27.0"
+  },
+  "devDependencies": {
+    "dotenv": "^10.0.0",
+    "lambda-local": "^2.0.0"
+  }
+}
