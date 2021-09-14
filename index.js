@@ -40,13 +40,12 @@ exports.handler = async (event) => {
 const errorHandler = (error) => {
     const obj = {};
     obj["status"] = 500;
-    if (error.response) {
-        obj["status"] = error.response.status;
-        obj["statusText"] = error.response.statusText;
-        obj["data"] = error.response.data;
-    }
     obj["message"] = error.message;
+    obj["stack"] = error.stack;
     obj["result"] = "ng";
+    if (error.$metadata) {
+        obj["status"] = error.$metadata.httpStatusCode;
+    }
 
     console.log("errorHandler", obj);
     return obj;
