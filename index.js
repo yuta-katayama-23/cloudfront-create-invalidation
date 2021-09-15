@@ -5,35 +5,36 @@ const client = new CloudFrontClient({ region: process.env.REGION });
 exports.handler = async (event) => {
     try {
         const bucket = event.Records[0].s3.bucket.name;
-        const objName = event.Records[0].s3.object.key;
+        const object = event.Records[0].s3.object.key;
         const link = config.linking.filter(el => el.bucket === bucket)[0];
 
-        console.log("objName", objName);
-        console.log("distriConfig", link);
+        console.log("object", object);
+        console.log("link", link);
 
-        if (objName.includes("index.html") && link) {
-            const input = {
-                DistributionId: link.distributionId,
-                InvalidationBatch: {
-                    CallerReference: String(Date.now()),
-                    Paths: {
-                        Items: ["/*"],
-                        Quantity: 1
-                    }
-                }
-            }
-            const command = new CreateInvalidationCommand(input);
-            const response = await client.send(command);
-
-            console.log("status", response.$metadata.httpStatusCode);
-            console.log("invalidation status", response.Invalidation.Status);
-
-            return { status: response.$metadata.httpStatusCode, result: "ok", response }
+        if (!object.includes("index.html") || !link) {
+            console.log("Not create invalidation because not applicable.", object);
+            return { status: 200, result: "Not create invalidation because not applicable." }
         }
 
-        return { status: 200, result: "Not create invalidation because not applicable." }
+        const input = {
+            DistributionId: link.distributionId,
+            InvalidationBatch: {
+                CallerReference: String(Date.now()),
+                Paths: {
+                    Items: ["/*"],
+                    Quantity: 1
+                }
+            }
+        }
+        const command = new CreateInvalidationCommand(input);
+        const response = await client.send(command);
+
+        console.log("status", response.$metadata.httpStatusCode);
+        console.log("invalidation status", response.Invalidation.Status);
+
+        return { status: response.$metadata.httpStatusCode, result: "ok", response }
     } catch (error) {
-        errorHandler(error);
+        return errorHandler(error);
     }
 }
 
